@@ -1,0 +1,5 @@
+"0",""
+"0","sites$cl2_total <- sapply(as.character(sites_ll$site_ID), function(site){"
+"0","  median(water_testing$cl2_total[water_testing$source == site], na.rm = T)"
+"0","})"
+"0",""
