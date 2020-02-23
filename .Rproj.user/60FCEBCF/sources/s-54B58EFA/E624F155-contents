@@ -1,0 +1,188 @@
+---
+title: "Rlab: Manipulating and Visualizing Spatio-Temporal Data"
+author: "Kristine Dinh" 
+date: "Feb 07, 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+```
+
+
+```{r packages, include=FALSE}
+
+library(sp)
+library(tigris)
+library(tidyverse)
+library(data.table)
+library(ggmap)
+
+#parameters
+
+proj_string <- "+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,0"
+
+```
+
+
+```{r, echo=FALSE}
+
+setwd(here::here())
+
+graffiti <- read.csv("data/get_it_done_graffiti_removal_requests_datasd_v1.csv")
+
+graffiti <- graffiti[!is.na(graffiti$lng) & !is.na(graffiti$lat), ]
+
+graffiti$POSIX_requested <- strptime(graffiti$date_requested, format = "%Y-%m-%dT%T", tz = "America/Los_Angeles")
+
+```
+
+#### **I. time**
+
+1. select rows that don't have missing values in both `lng` and `lat` columns
+
+- Another way to run line 5 for bonus points: `graffiti <- graffiti[!(is.na(graffiti$lng) | is.na(graffiti$lat)), ]`
+
+2. `%Y-%m-%dT%T`
+
+```{r include=FALSE}
+
+hist(graffiti$POSIX_requested, breaks = "months", freq = T, xlab = "time", main = "graffiti reports")
+
+```
+
+3. It looks like summer (specifically June) is the peak season for graffiti.
+
+4. Other options available to for `breaks` argument are: "days", "weeks", "months", "quarters", "years", "secs", "mins", and "hours"
+
+5. `hist(graffiti$POSIX_requested, breaks = "days", freq = T, xlab = "time binned by day")`
+
+<br>
+
+#### **II. Spatio* objects**
+
+6. I like Mercator, Van Der Grinten, Robinson because they are easy to visualize where part of the earth are.
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+sd_tracts <- tracts(state = "CA", county = "San Diego")
+
+areas <- sapply(sd_tracts@polygons, function(x) x@area)
+
+sd_tracts_proj <- spTransform(sd_tracts, CRS("+proj=utm +zone=11"))
+
+```
+
+
+7. The two plots looks similar
+
+```{r echo=FALSE, fig.width=10}
+
+plot(sd_tracts, main = "Unprojected sensus tracts")
+
+plot(sd_tracts_proj, main = "UTM-projected tracts")
+
+```
+
+
+8. `areas_proj <- sapply(sd_tracts_proj@polygons, function(x) x@area)`
+
+```{r echo=FALSE}
+
+areas_proj <- sapply(sd_tracts_proj@polygons, function(x) x@area)
+
+```
+
+
+9. The column `ALAND` provided in `sd_tracts` data provides kind of different area information than `areas_proj`. The discripancies between the areas is so large (see mean of differences below). The differences in units or how people measure the area and transform the data might effect this discripancies.
+
+```{r}
+
+(areas_proj - as.numeric(sd_tracts@data$ALAND)) %>% mean
+
+```
+
+<br>
+
+#### **III. art density**
+
+```{r echo=FALSE}
+
+setwd(here::here())
+
+art <- read.csv("data/public_art_locations_datasd_v1.csv")
+
+coordinates(art) <- c("lng", "lat")
+
+proj4string(art) <- CRS(proj_string)
+
+```
+
+10. Set spatial coordinates to make `art` data set a spatial object
+
+11. Total art installations: `r art@data  %>% nrow`
+
+12. Unique locations: `r art@data$location %>% unique %>% length`
+
+```{r echo=FALSE}
+
+CRL <- SpatialPoints(coords = data.frame(lng = -117.0561, lat = 32.76941))
+
+proj4string(CRL) <- CRS(proj_string)
+
+```
+
+13. `MVL <- SpatialPoints(coords = data.frame(lng = -117.1269, lat = 32.7793))`
+
+```{r echo=FALSE}
+
+MVL <- SpatialPoints(coords = data.frame(lng = -117.1269, lat = 32.7793))
+
+proj4string(MVL) <- CRS(proj_string)
+
+```
+
+14. The name of census tract containing MVL is: `r over(MVL, sd_tracts)$NAME`
+
+```{r echo=FALSE}
+
+art_over_tracts <- over(art, sd_tracts)
+
+
+```
+
+
+15. `NAME` = `r art_over_tracts$NAME[[1]]`
+
+16. Pieces of art work containing the MVL: `r (art_over_tracts$NAME == 93.04) %>% sum`
+
+17. Select the index where the `NAME` in `sd_tracts` is equal to 29.05, then return the value of the `areas_proj` using the same index value.
+
+18. Area of the census tract containing the MVL: `r as.character(round(areas_proj[which(sd_tracts$NAME == 93.04)]))`
+
+19. Since density of artwork in CRL is `r as.character(round(areas_proj[which(sd_tracts$NAME == 29.05)] / sum(art_over_tracts$NAME == 29.05)))` and MVL is `r as.character(round(areas_proj[which(sd_tracts$NAME == 93.04)] / sum(art_over_tracts$NAME == 93.04)))`, census tract containing CRL has lower density of artwork.
+
+20. We should select MVL to have a mural. Mission Valley is near the mall, so most likely more people will visit the mural.
+
+<br>
+
+#### **IV. ggmap**
+
+21. `bbox <- c(left = -117.3, bottom = 32.55, right = -117.0, top = 33.02)`
+
+```{r echo=FALSE}
+
+bbox <- c(left = -117.3, bottom = 32.55, right = -117.0, top = 33.02)
+
+art_map <- get_stamenmap(bbox = bbox)
+
+ggmap(art_map) +
+  geom_point(aes(x = lng, y = lat), data = data.frame(art))
+
+```
+
+
+22. I like `maptype` = "terrain", "terrain-background", or "terrain-labels" and `color` = "color" 
+
+

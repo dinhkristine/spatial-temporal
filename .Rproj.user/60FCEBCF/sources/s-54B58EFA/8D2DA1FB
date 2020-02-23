@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1581121319184.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8D2DA1FB",
+    "lastKnownWriteTime" : 1581121337,
+    "last_content_update" : 1581121337467,
+    "path" : "C:/Users/kdinh.ARROW/Projects/patio-temporal/R/test.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "2,42",
+        "scrollLine" : "0",
+        "tempName" : "Untitled2"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
