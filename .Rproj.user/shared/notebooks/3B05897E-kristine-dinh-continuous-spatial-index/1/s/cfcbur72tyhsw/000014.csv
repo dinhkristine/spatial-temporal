@@ -1,0 +1,5 @@
+"0","SpatialPointsDataFrame(df, pts)
+"
+"2","Error in validObject(.Object) : 
+  invalid class “SpatialPoints” object: spatial.dimension should be 2 or more
+"

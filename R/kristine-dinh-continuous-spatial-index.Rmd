@@ -121,7 +121,9 @@ sd_tracts@proj4string
 
 ```{r}
 # 
-# sd_tracts %<>% spTransform(CRS("+proj=longlat"))
+sd_tracts %<>% spTransform(CRS("+proj=longlat"))
+
+SpatialPointsDataFrame()
 # 
 # sites_sub_tract <- over(SpatialPolygons(sd_tracts@polygons), SpatialPoints(sites_sub@coords))
 # 
@@ -134,6 +136,22 @@ sd_tracts@proj4string
 # sd_tracts$x <- x
 # 
 # spplot(sd_tracts, zcol = "x", xlim = c(-117.3, -116.8), ylim = c(32.5, 33))
+
+# set.seed(1331)
+# pts = cbind(1:5, 1:5)
+# dimnames(pts)[[1]] = letters[1:5]
+# df = data.frame(a = 1:5)
+# row.names(df) = letters[5:1]
+# 
+# SpatialPointsDataFrame(pts, df)
+# 
+# 
+# sites_sub@data
+# 
+# sites_sub@coords
+# 
+# 
+# SpatialPointsDataFrame(as.data.frame(sites_sub@data), sd_tracts@data$median_income)
 
 ```
 

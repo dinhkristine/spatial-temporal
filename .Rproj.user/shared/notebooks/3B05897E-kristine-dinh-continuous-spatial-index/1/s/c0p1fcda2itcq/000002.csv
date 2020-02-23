@@ -1,0 +1,5 @@
+"0",""
+"0","sites_sub <- sites"
+"0",""
+"0","sites_sub@data %<>% filter(!is.na(cl2_total))"
+"0",""
