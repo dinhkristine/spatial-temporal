@@ -1,0 +1,5 @@
+"0",""
+"0","fit.k <- krige(formula = cl2_total ~ median_income, locations = sites_sub, "
+"0","               newdata = sd_grid, model = fit.v)"
+"1","[using universal kriging]
+"

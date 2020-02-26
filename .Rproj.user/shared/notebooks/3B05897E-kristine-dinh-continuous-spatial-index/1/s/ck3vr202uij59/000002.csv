@@ -4,4 +4,6 @@
 "0","library(tidyverse)"
 "0","library(magrittr)"
 "0","library(gstat)"
+"0","library(knitr)"
+"0","library(kableExtra)"
 "0",""

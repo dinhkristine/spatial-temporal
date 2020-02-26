@@ -1,7 +1,0 @@
-"0","##
-lz.uk <- krige(formula = log(zinc) ~ sqrt(dist), locations = meuse, 
-               newdata = meuse.grid, model = v.fit)
-"
-"2","Error in krige(formula = log(zinc) ~ sqrt(dist), locations = meuse, newdata = meuse.grid,  : 
-  object 'meuse' not found
-"

@@ -1,0 +1,6 @@
+"0","library(rayshader)
+"
+"2","package �rayshader� was built under R version 3.6.2"
+"2","Error: package or namespace load failed for ‘rayshader’ in loadNamespace(i, c(lib.loc, .libPaths()), versionCheck = vI[[i]]):
+ namespace ‘htmltools’ 0.3.6 is already loaded, but >= 0.4.0 is required
+"

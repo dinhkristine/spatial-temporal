@@ -1,0 +1,409 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Rlab: continuous spatial index},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+
+\title{Rlab: continuous spatial index}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+\hypertarget{i.-gathering-and-exploring-the-data}{%
+\subsubsection{I. Gathering and exploring the
+data}\label{i.-gathering-and-exploring-the-data}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  {[}2 pts{]} What type of R object is \texttt{sd\_city}? What
+  coordinate reference system is used?
+\end{enumerate}
+
+\begin{itemize}
+\item
+  \texttt{sd\_city} is SpatialPolygonsDataFrame
+\item
+  Coordinate reference system:
+\end{itemize}
+
+\begin{verbatim}
+## [1] "+proj=lcc +lat_1=33.88333333333333 +lat_2=32.78333333333333 +lat_0=32.16666666666666 +lon_0=-116.25 +x_0=2000000.000101601 +y_0=500000.0001016002 +datum=NAD83 +units=us-ft +no_defs +ellps=GRS80 +towgs84=0,0,0"
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  {[}1 pts{]} What does line 7 do?
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  Transform for map projection and datum transformation.
+  \texttt{sites\_11} is the object to be transfer. And
+  \texttt{proj4string(sd\_city)} is the coordinate references CRS
+  object.
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  {[}4 pts{]} Make a plot that shows: (i) the locations of the
+  measurement sites, (ii) the boundary of the city, and (iii) basic
+  contextual features of San Diego, such as major roadways.
+\end{enumerate}
+
+\includegraphics{kristine-dinh-continuous-spatial-index_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  {[}2 pts{]} There are 9 NAs in \texttt{sites\$cl2\_total}. Why?
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  Because there're 9 sites that exist in \texttt{sites\_ll\$site\_ID}
+  but not \texttt{water\_testing\$source}
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  {[}2 pts{]} Write your own code that creates a new variable called
+  \texttt{sites\_sub} that is just like \texttt{sites}, but has the 9
+  sample sites with \texttt{NA} values for \texttt{cl2\_total} removed.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sites_sub <-}\StringTok{ }\NormalTok{sites[}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(sites}\OperatorTok{$}\NormalTok{cl2_total),]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  {[}1 pts{]} What is the coordinate reference system for the tract
+  data?
+\end{enumerate}
+
+\begin{verbatim}
+## CRS arguments:
+##  +proj=lcc +lat_1=33.88333333333333 +lat_2=32.78333333333333
+## +lat_0=32.16666666666666 +lon_0=-116.25 +x_0=2000000.000101601
+## +y_0=500000.0001016002 +datum=NAD83 +units=us-ft +no_defs +ellps=GRS80
+## +towgs84=0,0,0
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\tightlist
+\item
+  {[}1 pts{]} What is the name of the census tract with the lowest
+  median household income? Highest?
+\end{enumerate}
+
+\begin{itemize}
+\item
+  Name of census tract with lowest median income: 33.05
+\item
+  Name of census tract with highest median income: 215
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{7}
+\tightlist
+\item
+  {[}4 pts{]} Provide executable code that adds a new column to
+  \texttt{sites\_sub} called \texttt{median\_income} with the
+  appropriate values of median household income. Check that your first
+  few values match the ones below.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sites_sub }\OperatorTok{%<>%}\StringTok{ }\KeywordTok{spTransform}\NormalTok{(., }\KeywordTok{proj4string}\NormalTok{(sd_tracts))}
+
+\NormalTok{sites_sub_new <-}\StringTok{ }\KeywordTok{over}\NormalTok{(sites_sub, sd_tracts)}
+
+\NormalTok{sites_sub}\OperatorTok{@}\NormalTok{data }\OperatorTok{%<>%}\StringTok{ }
+\StringTok{  }\KeywordTok{cbind}\NormalTok{(}\DataTypeTok{median_income =}\NormalTok{ sites_sub_new}\OperatorTok{$}\NormalTok{median_income)}
+
+\NormalTok{sites_sub}\OperatorTok{$}\NormalTok{median_income }\OperatorTok{%>%}\StringTok{ }\NormalTok{head}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  72992 166383  72992  45329  52080  47043
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{8}
+\tightlist
+\item
+  {[}4 pts{]} Fit a non-spatial linear model using \texttt{lm()} with
+  median household income as the sole predictor of chlorine levels. Give
+  a point estimate and 95\% confidence interval for the effect of median
+  household income on chlorine levels. How does the estimate compare to
+  your expectations?
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  CI and p value shows that median income has an effect on chlorine
+  level. I wouldn't expect this.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l|r|r|r|r|r|r}
+\hline
+term & estimate & std.error & statistic & p.value & 2.5 \% & 97.5 \%\\
+\hline
+(Intercept) & 2.4136060 & 0.1201074 & 20.095392 & 0.00e+00 & 2.1762322 & 2.6509798\\
+\hline
+median\_income & -0.0000045 & 0.0000011 & -4.228018 & 4.14e-05 & -0.0000066 & -0.0000024\\
+\hline
+\end{tabular}
+\end{table}
+
+\hypertarget{ii.-spatial-dependence-interpolation}{%
+\subsubsection{II. Spatial dependence +
+interpolation}\label{ii.-spatial-dependence-interpolation}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{11}
+\tightlist
+\item
+  {[}3 pts{]} Use the krige function to perform universal kriging of
+  chlorine levels for all locations in \texttt{sd\_grid}, taking into
+  account the effect of household income. Use whichever variogram model
+  you think fit best. Provide the code you used to make your
+  predictions, and report estimates of parameters in the variogram
+  model.
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  Table of estiamtes of parameters in variogram model
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l|r|r|r}
+\hline
+model & psill & range & kappa\\
+\hline
+Nug & 0.0857314 & 0.00 & 0.0\\
+\hline
+Mat & 0.1626253 & 10002.13 & 0.5\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{itemize}
+\tightlist
+\item
+  Universal kriging
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fit.k <-}\StringTok{ }\KeywordTok{krige}\NormalTok{(}\DataTypeTok{formula =}\NormalTok{ cl2_total }\OperatorTok{~}\StringTok{ }\NormalTok{median_income, }\DataTypeTok{locations =}\NormalTok{ sites_sub, }
+               \DataTypeTok{newdata =}\NormalTok{ sd_grid, }\DataTypeTok{model =}\NormalTok{ fit.v)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{12}
+\tightlist
+\item
+  {[}3 pts{]} Make a map of the predictions, again with contextual
+  information included (hint: if you use ggmap(), you'll need to
+  transform to longitude/latitude coordinates.)
+\end{enumerate}
+
+\includegraphics{kristine-dinh-continuous-spatial-index_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{13}
+\tightlist
+\item
+  {[}3 pts{]} Below is a map I made based on my model. How does it
+  compare to yours? What does your map show that mine doesn't?
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  Both map looks similiar. However, my map has the emperical points on
+  top and has color.
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{14}
+\tightlist
+\item
+  {[}2 pts{]} If you look closely, you can see some interesting shapes
+  showing up in my figure. What do they correspond to? Why do you think
+  they're visible in the predicted surface?
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  They correspond to the predicted values. They are visible in the
+  predicted surface because the predicted values seems to be dependent.
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{15}
+\tightlist
+\item
+  {[}2 pts{]} Below is a map I made of the variance in the predicted
+  values. What stands out to you? Why?
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  Some part have really high variance, and some low. Looks like there
+  are clusters in the variance plot.
+\end{itemize}
+
+\end{document}
