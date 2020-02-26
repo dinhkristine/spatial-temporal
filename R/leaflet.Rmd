@@ -1,0 +1,202 @@
+---
+title: "Maping with Leaflet"
+author: "Kristine Dinh" 
+date: "Febuary 27, 2020"
+output: slidy_presentation
+---
+
+```{r include=FALSE}
+
+library(leaflet)
+library(maps)
+
+```
+
+# Before we start 
+
+- Why I choose this topic? 
+
+![](`r "https://mode.com/resources/images/gallery/google-maps-with-markers-1.png"`)
+
+
+# Introduction 
+
+### What is `Leaflet`?
+
+- 'Leaflet' JavaScript library and  `htmlwidgets` package
+- Interactive maps
+- Use to present, report, GIS, etc.
+
+### Content
+
+- Simple maps
+- Some cool functions in the package
+- I try it
+- Summary 
+
+
+# But first, let's install the package
+
+- To install CRAN package: 
+
+`install.packages("leaflet")`
+
+- To install developing github package: 
+
+`devtools::install_github("rstudio/leaflet")`
+
+
+# Simple maps
+
+### San Diego County
+
+```{r fig.height=4}
+
+library(leaflet)
+library(maps)
+
+leaflet() %>% 
+  setView(lng = -117.0713, lat = 32.7760, zoom = 10) %>% 
+  addTiles()  ## Add tiles layer to the map 
+
+```
+
+- Third-Party Tiles: use function `addProviderTiles()`
+
+
+# Some cool functions 
+
+### `addMarker()` 
+
+### `addRectangles()` 
+
+### `addPolygons()`
+
+
+# `leaflet::addMarker()` 
+
+#### Default marker 
+
+```{r fig.height=4}
+
+leaflet() %>%
+  addTiles() %>%  
+  addMarkers(lng = -117.0713, lat = 32.7760, label="Here is San Diego State University")
+
+```
+
+
+#### Customize marker 
+
+```{r}
+
+icon <- makeIcon("school-icon-png-3.png", iconWidth = 50)
+
+leaflet() %>%
+  addTiles() %>%  
+  addMarkers(lng = -117.0713, lat = 32.7760, popup="Here is San Diego State University", icon = icon)
+
+```
+
+
+# `leaflet::addRectangles()` 
+
+```{r}
+
+leaflet() %>% addTiles() %>%
+  addRectangles(
+    lng1=-117.0713, lat1=32.7760,
+    lng2=-117.0013, lat2=32.6960,
+    fillColor = "transparent"
+  )
+
+```
+
+
+# `leaflet::addPolygons()`
+
+```{r}
+
+mapStates <- map("state", fill = TRUE, plot = FALSE)
+
+leaflet(data = mapStates) %>% 
+  addTiles() %>%
+  addPolygons()
+
+```
+
+
+```{r}
+
+leaflet(data = mapStates) %>% 
+  addTiles() %>%
+  addPolygons(fillColor = c("red", "green"), stroke = FALSE)
+
+```
+
+
+# I try it
+
+```{r}
+
+
+lat <- c(37.8651, 36.4864, 33.8734, 36.5054)
+lng <- c(-119.5383, -118.5658, -115.9010, -117.0794)
+np <- c("Yosemity", "Sequoia", "Joshua Tree", "Death Valley")
+has_been <- c("yes", "yes", "yes", "no")
+
+df <- data.frame(lng, lat, np, has_been)
+
+colors <- colorFactor(palette = c("red", "blue"), df$has_been)
+
+leaflet(df) %>%
+  setView(lng = -117.0713, lat = 36.4864, zoom = 6) %>%  
+  addTiles() %>%  
+  addCircleMarkers(lat = ~lat, lng = ~lng,
+                       color = ~colors(has_been), label = np) %>% 
+  addLegend('bottomright', pal = colors, values = has_been,
+            title = "Have I been to this National Park?",
+            opacity = 1)
+
+
+```
+
+
+# Summary 
+
+### What is it?
+
+- A package that is used to create and customize interactive maps
+
+
+
+### How does it work?
+
+- Use longitude and latitude to map any variables.
+- The map dataset is already included in the package, we only have to plot out point on top of the map
+- Use `dataframe` to plot, or object from the `sp` package  
+- Embed in Rmd documents and Shiny apps
+
+
+### Why is it cool?
+
+- Zoom in and out
+- Change icon
+- Change colors, color blind friendly
+- Interactive 
+
+
+### What are some limitations?
+
+- Very difficult to work with in the beginning
+- Cannot capture animation changes over time
+
+
+### For more information:
+
+- `Leaflet` Github for R: https://rstudio.github.io/leaflet/
+- Information about the package: https://cran.r-project.org/web/packages/leaflet/index.html
+
+
+
+

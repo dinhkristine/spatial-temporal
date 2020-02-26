@@ -1,0 +1,12 @@
+"0",""
+"0","library(leaflet)"
+"2","package �leaflet� was built under R version 3.6.2"
+"2","Registered S3 methods overwritten by 'htmltools':
+  method               from         
+  print.html           tools:rstudio
+  print.shiny.tag      tools:rstudio
+  print.shiny.tag.list tools:rstudio
+"
+"2","Error: package or namespace load failed for ‘leaflet’ in loadNamespace(i, c(lib.loc, .libPaths()), versionCheck = vI[[i]]):
+ namespace ‘htmltools’ 0.3.6 is already loaded, but >= 0.4.0 is required
+"
