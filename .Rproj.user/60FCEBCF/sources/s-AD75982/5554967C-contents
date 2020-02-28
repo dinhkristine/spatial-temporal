@@ -156,6 +156,17 @@ cbind(tidy.lm, confint.lm) %>%
 
 ### II. Spatial dependence + interpolation
 
+10. [2 pts] Based on the figure above, do you think it’s necessary to include a "nugget" effect when fitting the variogram? What about the figure makes you say this?
+
+- I think it's necessary to include a "nugget". The initial point starts at around 0.1 so it'd be better to add a nugget to represent the starting point more. 
+
+
+11. [3pts] Fit at least one other variogram model to the sample variogram (see show.vgms() for some ideas). Which of the fits seem the best to you? Worst?
+
+- Best: "Mat"
+- Worst: "Sph"
+
+
 12. [3 pts] Use the krige function to perform universal kriging of chlorine levels for all locations in `sd_grid`, taking into account the effect of household income. Use whichever variogram model you think fit best. Provide the code you used to make your predictions, and report estimates of parameters in the variogram model.
 
 - Table of estiamtes of parameters in variogram model 
@@ -187,7 +198,7 @@ fit.k <- krige(formula = cl2_total ~ median_income, locations = sites_sub,
 
 13. [3 pts] Make a map of the predictions, again with contextual information included (hint: if you use ggmap(), you’ll need to transform to longitude/latitude coordinates.)
 
-```{r fig.height=4, echo=FALSE}
+```{r fig.height=3, echo=FALSE}
 
 fit.k_ll <- fit.k %>% 
   spTransform(., CRS("+proj=longlat")) %>% as.data.frame()
