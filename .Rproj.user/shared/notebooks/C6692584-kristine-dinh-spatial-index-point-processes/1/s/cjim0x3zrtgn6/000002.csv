@@ -1,0 +1,3 @@
+"0",""
+"0","earthquakes_ppp <- ppp(earthquakes_utm@coords[,1], earthquakes_utm@coords[,2], window = as.owin(kansas_utm))"
+"0",""

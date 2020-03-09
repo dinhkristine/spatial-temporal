@@ -1,0 +1,249 @@
+---
+title: 'Rlab: random spatial index (point processes)'
+author: "Kristine Dinh"
+date: "3/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+```{r packages, include=FALSE}
+
+library(tidyverse)
+library(sp)
+library(tigris)
+library(magrittr)
+library(spatstat)
+
+```
+
+
+```{r data, include=FALSE}
+
+setwd(here::here())
+
+earthquakes <- read.csv("data/Kansas_Earthquake_Database.csv")
+
+coordinates(earthquakes) <- c("Longitude", "Latitude")
+
+proj4string(earthquakes) <- CRS("+proj=longlat")
+
+
+# actively producing gas and oil wells in Kansas data
+
+load("data/wells.RData")
+
+
+# edit data 
+
+earthquakes@data %<>% rename(Date = "ï..Date")
+
+```
+
+
+#### I. Exploration
+
+For this lab, we’ll investigate a possible connection between earthquakes and oil & gas drilling in Kansas.
+
+1 .[2 pts] Create a `SpatialPolygons`* object named `kansas` that represents the boundary of the state of Kansas (hint: we’ve used the `tigris` package to do things like this in the past). Provide executable code.
+
+```{r results="hide"}
+
+states <- states(cb = TRUE, resolution = "20m")
+
+kansas <- states[states$NAME == "Kansas", ]
+
+```
+
+
+2. [2 pts] Make a new column in the `dataframe` `earthquakes` called `POSIX` that converts Date to a `POSIX`* class object. What is the most recent observation?
+
+
+```{r echo = FALSE}
+
+earthquakes@data$POSIX <- strptime(earthquakes@data$Date, "%m/%d/%y")
+
+```
+
+The most recent observation is:
+
+```{r echo = FALSE}
+
+earthquakes@data[which(earthquakes@data$POSIX == max(earthquakes@data$POSIX)), ]
+
+```
+
+3. [3 pts] How many earthquakes were there in 2002? How many in 2012? 2015?
+
+```{r echo = FALSE}
+
+earthquakes@data$year <- lubridate::year(earthquakes@data$POSIX)
+
+earthquakes@data %>% 
+  group_by(year) %>% 
+  tally() %>% 
+  filter(year %in% c(2002, 2012, 2015)) %>% 
+  as.data.frame()
+
+
+```
+
+Year 2012 doesn't have any earthquakes 
+
+
+4. [2 pts] Make a new column in the dataframe wells called `COMPLETION_POSIX` that converts the completion date for each well into a `POSIX`* class object. When was the most recent well completed?
+
+```{r echo=FALSE}
+
+wells@data$COMPLETION_POSIX %<>% as.POSIXct()
+
+```
+
+The most recent well completed was on `r wells@data$COMPLETION_POSIX %>% max %>% as.Date()`
+
+
+5. [2 pts] Which year had the largest number of wells completed? How many wells were completed that year?
+
+```{r echo = FALSE}
+
+wells@data$COMPLETION_year <- lubridate::year(wells@data$COMPLETION_POSIX)
+
+wells@data %>% 
+  group_by(COMPLETION_year) %>% 
+  summarise(number_of_wells = n()) %>% 
+  arrange(desc(number_of_wells)) %>% 
+  head(1) %>% 
+  as.data.frame()
+
+```
+
+
+6. [3 pts] Make new versions of `kansas`, `earthquakes`, and `wells` called `kansas_utm`, and `earthquakes_utm`, `wells_utm` that change the CRS to the Universal Transverse Mercator coordinate system, zone 13. Provide executable code. Compare your first few coordinate values to the ones below to make sure you’ve transformed correctly.
+
+```{r}
+
+CRS_new <- CRS("+proj=utm +zone=13")
+
+kansas_utm <- spTransform(kansas, CRS_new)
+
+earthquakes_utm <- spTransform(earthquakes, CRS_new)
+
+wells_utm <- spTransform(wells, CRS_new)
+
+```
+
+- Compare answer 
+
+```{r}
+
+head(kansas_utm@polygons[[1]]@Polygons[[1]]@coords)
+
+head(earthquakes_utm@coords)
+
+head(wells_utm@coords)
+
+```
+
+7. [2 pts] From the explorations so far, do you anticipate any connection between the locations/numbers of new oil & gas wells and the location/numbers of earthquakes? Why or why not?
+
+- I anticipate that there is weak negative connection between numbers of new oil & gas wells and number of earthquakes. Because at the location where there is wells, earthquake tends to happened less.  
+
+
+#### II. First-order properties of earthquakes
+
+```{r}
+
+earthquakes_ppp <- ppp(earthquakes_utm@coords[,1], earthquakes_utm@coords[,2], window = as.owin(kansas_utm))
+
+```
+
+8. [4 pts] Compute the empirical G(r) and F(r) functions for the collection of all earthquake locations. Is it reasonable to conclude that the earthquakes arise according to a homogeneous Poisson process? Why or why not?
+
+```{r}
+
+G_earthquake <- Gest(earthquakes_ppp)
+
+F_earthquake <- Fest(earthquakes_ppp)
+
+```
+
+
+```{r echo=FALSE}
+
+par(mfrow=c(1,2))
+
+plot(G_earthquake)
+
+plot(F_earthquake)
+
+```
+
+It's not reasonable to conclude that the earthquakes arise according to a homogeneous Possion process. Because the distanct between points are very different. The data seems to be independent 
+
+
+9. [4 pts] Estimate the intensity function for the collection of all earthquake locations. Make a plot of the intensity surface.
+
+```{r}
+
+earthquakes_density_diggle <- density(earthquakes_ppp, sigma = bw.diggle)
+
+earthquakes_density_ppl <- density(earthquakes_ppp, sigma = bw.ppl)
+
+earthquakes_density_scott <- density(earthquakes_ppp, sigma = bw.scott)
+
+earthquakes_density_CvL <- density(earthquakes_ppp, sigma = bw.CvL)
+
+```
+
+
+```{r echo=FALSE}
+
+par(mfrow=c(2,2))
+
+plot(earthquakes_density_diggle)
+plot(earthquakes_density_ppl)
+plot(earthquakes_density_scott)
+plot(earthquakes_density_CvL)
+
+```
+
+
+
+#### III. Second-order properties of earthquakes
+
+10. [2 pts] Compute the empirical K(r) function for the collection of all earthquake locations. How does it compare to the theoretical function for an independent homogeneous Poisson process?
+
+```{r}
+
+K_earthquake <- Kest(earthquakes_ppp)
+
+plot(K_earthquake)
+
+```
+
+- **IDK**
+
+
+11. [4 pts] Use the function `rpoint()` from the spatstat package to simulate 500 points from an independent inhomogeneous Poisson process with an intensity function that matches your estimate in question 9. Make a plot of the points with the border of Kansas for reference.
+
+```{r}
+
+x <- rpoint(500)
+
+```
+
+
+
+12. [2 pts] Compute the empirical K(r) function for the independent points you just simulated. Plot the difference between the two functions (hint: you will need to set the r argument in Kest() so that the two estimated functions match up).
+
+
+13. [2 pts] What does the plot suggest about whether or not the earthquake data are independent?
+
+
+
+
+
+
