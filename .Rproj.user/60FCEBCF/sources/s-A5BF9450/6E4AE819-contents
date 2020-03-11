@@ -17,6 +17,9 @@ library(sp)
 library(tigris)
 library(magrittr)
 library(spatstat)
+library(fields)
+library(mgcv)
+library(broom)
 
 ```
 
@@ -44,11 +47,9 @@ earthquakes@data %<>% rename(Date = "ï..Date")
 ```
 
 
-#### I. Exploration
+### I. Exploration
 
-For this lab, we’ll investigate a possible connection between earthquakes and oil & gas drilling in Kansas.
-
-1 .[2 pts] Create a `SpatialPolygons`* object named `kansas` that represents the boundary of the state of Kansas (hint: we’ve used the `tigris` package to do things like this in the past). Provide executable code.
+1. [2 pts] Create a `SpatialPolygons`* object named `kansas` that represents the boundary of the state of Kansas (hint: we’ve used the `tigris` package to do things like this in the past). Provide executable code.
 
 ```{r results="hide"}
 
@@ -84,14 +85,13 @@ earthquakes@data$year <- lubridate::year(earthquakes@data$POSIX)
 
 earthquakes@data %>% 
   group_by(year) %>% 
-  tally() %>% 
+  summarise(number_of_earthquakes = n()) %>% 
   filter(year %in% c(2002, 2012, 2015)) %>% 
   as.data.frame()
 
-
 ```
 
-Year 2012 doesn't have any earthquakes 
+- 2012 doesn't have any earthquakes 
 
 
 4. [2 pts] Make a new column in the dataframe wells called `COMPLETION_POSIX` that converts the completion date for each well into a `POSIX`* class object. When was the most recent well completed?
@@ -102,7 +102,7 @@ wells@data$COMPLETION_POSIX %<>% as.POSIXct()
 
 ```
 
-The most recent well completed was on `r wells@data$COMPLETION_POSIX %>% max %>% as.Date()`
+- The most recent well completed was on `r wells@data$COMPLETION_POSIX %>% max %>% as.Date()`
 
 
 5. [2 pts] Which year had the largest number of wells completed? How many wells were completed that year?
@@ -135,26 +135,15 @@ wells_utm <- spTransform(wells, CRS_new)
 
 ```
 
-- Compare answer 
-
-```{r}
-
-head(kansas_utm@polygons[[1]]@Polygons[[1]]@coords)
-
-head(earthquakes_utm@coords)
-
-head(wells_utm@coords)
-
-```
 
 7. [2 pts] From the explorations so far, do you anticipate any connection between the locations/numbers of new oil & gas wells and the location/numbers of earthquakes? Why or why not?
 
 - I anticipate that there is weak negative connection between numbers of new oil & gas wells and number of earthquakes. Because at the location where there is wells, earthquake tends to happened less.  
 
 
-#### II. First-order properties of earthquakes
+### II. First-order properties of earthquakes
 
-```{r}
+```{r echo = FALSE}
 
 earthquakes_ppp <- ppp(earthquakes_utm@coords[,1], earthquakes_utm@coords[,2], window = as.owin(kansas_utm))
 
@@ -162,7 +151,7 @@ earthquakes_ppp <- ppp(earthquakes_utm@coords[,1], earthquakes_utm@coords[,2], w
 
 8. [4 pts] Compute the empirical G(r) and F(r) functions for the collection of all earthquake locations. Is it reasonable to conclude that the earthquakes arise according to a homogeneous Poisson process? Why or why not?
 
-```{r}
+```{r echo = FALSE}
 
 G_earthquake <- Gest(earthquakes_ppp)
 
@@ -181,42 +170,25 @@ plot(F_earthquake)
 
 ```
 
-It's not reasonable to conclude that the earthquakes arise according to a homogeneous Possion process. Because the distanct between points are very different. The data seems to be independent 
+- It's not reasonable to conclude that the earthquakes arise according to a homogeneous Poisson process. Because the distant of the lines are too far apart. 
 
 
 9. [4 pts] Estimate the intensity function for the collection of all earthquake locations. Make a plot of the intensity surface.
 
-```{r}
-
-earthquakes_density_diggle <- density(earthquakes_ppp, sigma = bw.diggle)
+```{r echo=FALSE, fig.height=4}
 
 earthquakes_density_ppl <- density(earthquakes_ppp, sigma = bw.ppl)
 
-earthquakes_density_scott <- density(earthquakes_ppp, sigma = bw.scott)
-
-earthquakes_density_CvL <- density(earthquakes_ppp, sigma = bw.CvL)
-
-```
-
-
-```{r echo=FALSE}
-
-par(mfrow=c(2,2))
-
-plot(earthquakes_density_diggle)
 plot(earthquakes_density_ppl)
-plot(earthquakes_density_scott)
-plot(earthquakes_density_CvL)
 
 ```
 
 
-
-#### III. Second-order properties of earthquakes
+### III. Second-order properties of earthquakes
 
 10. [2 pts] Compute the empirical K(r) function for the collection of all earthquake locations. How does it compare to the theoretical function for an independent homogeneous Poisson process?
 
-```{r}
+```{r echo = FALSE, fig.height=4}
 
 K_earthquake <- Kest(earthquakes_ppp)
 
@@ -224,24 +196,123 @@ plot(K_earthquake)
 
 ```
 
-- **IDK**
+- The lines seems to be similar at about *r < 500*, but after that, the different lines starting to be wider apart. Comparing to a homogeneous Poisson process, this figure seems to be very different.  
 
 
-11. [4 pts] Use the function `rpoint()` from the spatstat package to simulate 500 points from an independent inhomogeneous Poisson process with an intensity function that matches your estimate in question 9. Make a plot of the points with the border of Kansas for reference.
+11. [4 pts] Use the function `rpoint()` from the `spatstat` package to simulate 500 points from an independent inhomogeneous Poisson process with an intensity function that matches your estimate in question 9. Make a plot of the points with the border of Kansas for reference.
 
-```{r}
+```{r echo=FALSE, fig.height=4}
 
-x <- rpoint(500)
+earthquakes_density_ppl$v[earthquakes_density_ppl$v < 0] <- 0
+
+simulation <- rpoint(500, f = earthquakes_density_ppl, win = as.owin(kansas_utm))
+
+plot(simulation)
 
 ```
 
 
-
 12. [2 pts] Compute the empirical K(r) function for the independent points you just simulated. Plot the difference between the two functions (hint: you will need to set the r argument in Kest() so that the two estimated functions match up).
+
+```{r echo = FALSE, fig.height=4}
+
+simulation_ppp <- ppp(simulation$x, simulation$y, window = as.owin(kansas_utm))
+
+K_simulation <- Kest(simulation_ppp, r)
+
+plot(K_simulation)
+
+```
 
 
 13. [2 pts] What does the plot suggest about whether or not the earthquake data are independent?
 
+- The plot suggest that earthquake data are independent. 
+
+
+### IV. Cases and controls
+
+```{r echo = FALSE}
+
+set.seed(2020)
+
+n_control <- 5e2
+
+controls <- runifpoint(n_control, win = as.owin(kansas_utm))
+
+wells_pre2014 <- wells_utm[which(wells_utm$COMPLETION_POSIX < "2014-01-01"), ]
+
+earthquakes_post2014 <- earthquakes_utm[earthquakes_utm$POSIX > "2013-12-31", ]
+
+earthquakes_1 <- data.frame(earthquakes_post2014@coords, z = 1) %>% 
+  rename(x = Longitude, y = Latitude)
+
+earthquakes_0 <- cbind(data.frame(controls), z = 0)
+
+earthquakes_df <- rbind(earthquakes_1, earthquakes_0)
+
+earthquakes_df$z <- as.factor(earthquakes_df$z)
+
+coordinates(earthquakes_df) <- c('x', 'y')
+
+# table(earthquakes_df$z)
+
+```
+
+
+14. [2 pts] Use the function `rdist()` in the `fields` package to compute a matrix containing the distances between all locations in `earthquakes_df` (both cases and controls), and `wells`. Name the matrix `d2wells` and provide your executable code.
+
+```{r}
+
+d2wells <- rdist(earthquakes_df@coords, wells_pre2014@coords)
+
+```
+
+
+```{r echo = FALSE}
+
+d2nearest_well <- apply(d2wells, 1, min)
+
+```
+
+
+15. [2 pts] Fit a generalized linear model with a logit link function that includes a linear effect for distance to the nearest well. Give a 95% CI for the regression coefficient for distance to nearest well.
+
+```{r}
+
+earthquakes_glm <- glm(earthquakes_df$z ~ d2nearest_well, family = binomial(link = "logit"))
+
+```
+
+```{r echo = FALSE}
+
+tidy(earthquakes_glm) %>% 
+  cbind(confint(earthquakes_glm))
+
+```
+
+
+16. [2 pts] What does your analysis suggest about a relationship between the locations of oil & gas wells and earthquakes?
+
+- My analysis suggest that there is a negative correlation between the locations of oil & gas wells and earthquakes. In other words, as the distance of locations of oil & gas wells increases by 1-unit, earthquakes will appear on average is `r coef(earthquakes_glm)[[2]]`   
+
+17. [4 pts] Now fit a generalized additive model that accounts for small scale spatial dependence in the residuals like the one we looked at in class for `asthma`. How does the effect of the distance to the nearest well change (if at all)?
+
+```{r}
+
+earthquakes_gam <- gam(earthquakes_df$z ~ d2nearest_well + s(x, y), 
+                       data = earthquakes_df, family = binomial(link = "logit"))
+
+```
+
+
+```{r echo = FALSE}
+
+summary(earthquakes_gam)
+
+```
+
+- The coeficient of `d2nearest_well` changed from negative to postive. Now, the relationship between the distance to the nearest well and earthquakes is not statistically significant anymore. 
 
 
 

@@ -1,2 +1,0 @@
-"0",""
-"0","earthquakes@data[which(earthquakes@data$POSIX == max(earthquakes@data$POSIX)), ]"

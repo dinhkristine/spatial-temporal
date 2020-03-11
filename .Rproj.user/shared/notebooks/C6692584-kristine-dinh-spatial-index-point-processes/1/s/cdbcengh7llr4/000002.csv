@@ -1,3 +1,0 @@
-"0",""
-"0","earthquakes@data$POSIX <- strptime(earthquakes@data$Date, ""%m/%d/%y"")"
-"0",""
