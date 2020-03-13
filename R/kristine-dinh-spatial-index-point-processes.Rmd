@@ -1,8 +1,8 @@
 ---
 title: 'Rlab: random spatial index (point processes)'
 author: "Kristine Dinh"
-date: "3/6/2020"
-output: html_document
+date: "3/16/2020"
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -96,7 +96,7 @@ earthquakes@data %>%
 
 4. [2 pts] Make a new column in the dataframe wells called `COMPLETION_POSIX` that converts the completion date for each well into a `POSIX`* class object. When was the most recent well completed?
 
-```{r echo=FALSE}
+```{r}
 
 wells@data$COMPLETION_POSIX %<>% as.POSIXct()
 
@@ -170,7 +170,7 @@ plot(F_earthquake)
 
 ```
 
-- It's not reasonable to conclude that the earthquakes arise according to a homogeneous Poisson process. Because the distant of the lines are too far apart. 
+- It's reasonable to conclude that the earthquakes arise according to a homogeneous Poisson process. Because the distant of the lines are too far apart. As seen in plot of G(r) and F(r), we can see that they shows that they lines are homogeneous Poisson. 
 
 
 9. [4 pts] Estimate the intensity function for the collection of all earthquake locations. Make a plot of the intensity surface.
@@ -196,7 +196,7 @@ plot(K_earthquake)
 
 ```
 
-- The lines seems to be similar at about *r < 500*, but after that, the different lines starting to be wider apart. Comparing to a homogeneous Poisson process, this figure seems to be very different.  
+- The lines seems to be similar at about *r < 1000*, but after that, the different lines starting to be wider apart. Comparing to a homogeneous Poisson process, this figure seems to be very different.  
 
 
 11. [4 pts] Use the function `rpoint()` from the `spatstat` package to simulate 500 points from an independent inhomogeneous Poisson process with an intensity function that matches your estimate in question 9. Make a plot of the points with the border of Kansas for reference.
@@ -218,16 +218,19 @@ plot(simulation)
 
 simulation_ppp <- ppp(simulation$x, simulation$y, window = as.owin(kansas_utm))
 
-K_simulation <- Kest(simulation_ppp, r)
+K_simulation <- Kest(simulation_ppp, r = K_earthquake$r)
 
-plot(K_simulation)
+plot(K_simulation$r, K_earthquake$iso - K_simulation$iso, type = "l", 
+     xlab = "r", 
+     ylab = "delta", 
+     main = "Difference between K_earthquake and K_simulation")
 
 ```
 
 
 13. [2 pts] What does the plot suggest about whether or not the earthquake data are independent?
 
-- The plot suggest that earthquake data are independent. 
+- The plot suggest that earthquake data are dependent. 
 
 
 ### IV. Cases and controls

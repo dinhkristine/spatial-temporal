@@ -1,0 +1,5 @@
+"0",""
+"0","earthquakes_density_ppl <- density(earthquakes_ppp, sigma = bw.ppl)"
+"0",""
+"0","plot(earthquakes_density_ppl)"
+"0",""

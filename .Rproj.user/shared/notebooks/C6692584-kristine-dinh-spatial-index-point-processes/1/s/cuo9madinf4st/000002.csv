@@ -1,0 +1,5 @@
+"0",""
+"0","K_earthquake <- Kest(earthquakes_ppp)"
+"0",""
+"0","plot(K_earthquake)"
+"0",""

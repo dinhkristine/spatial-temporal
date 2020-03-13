@@ -1,0 +1,8 @@
+"0",""
+"0","earthquakes@data$year <- lubridate::year(earthquakes@data$POSIX)"
+"0",""
+"0","earthquakes@data %>% "
+"0","  group_by(year) %>% "
+"0","  summarise(number_of_earthquakes = n()) %>% "
+"0","  filter(year %in% c(2002, 2012, 2015)) %>% "
+"0","  as.data.frame()"

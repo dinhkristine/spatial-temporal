@@ -1,0 +1,5 @@
+"0",""
+"0","states <- states(cb = TRUE, resolution = ""20m"")"
+"0",""
+"0","kansas <- states[states$NAME == ""Kansas"", ]"
+"0",""

@@ -1,0 +1,7 @@
+"0",""
+"0","earthquakes_density_ppl$v[earthquakes_density_ppl$v < 0] <- 0"
+"0",""
+"0","simulation <- rpoint(500, f = earthquakes_density_ppl, win = as.owin(kansas_utm))"
+"0",""
+"0","plot(simulation)"
+"0",""
